@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>Moon Clicker — Conquer the Cosmos</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:#08090f;--bg2:#0f1120;--panel:#12152a;--panel2:#1a1f3a;
+  --border:rgba(120,140,255,0.18);--accent:#7b8cff;--accent2:#c8b4ff;
+  --accent3:#ffd166;--glow:rgba(123,140,255,0.35);
+  --text:#e8eaff;--text2:#9aa0cc;--text3:#5a6090;
+  --moon:#ffd166;--moon-glow:rgba(255,209,102,0.4);
+  --btn-bg:linear-gradient(135deg,#1e2350,#2a3070);
+  --shadow:0 8px 32px rgba(0,0,10,0.6);
+  --radius:14px;--transition:0.3s cubic-bezier(.4,0,.2,1);
+  --planet-color:#ffd166;--planet-glow:rgba(255,209,102,0.4);
+}
+[data-theme="light"] {
+  --bg:#eef0ff;--bg2:#e0e4ff;--panel:#f0f2ff;--panel2:#e8eaff;
+  --border:rgba(80,100,220,0.2);--accent:#4455ee;--accent2:#7755cc;
+  --accent3:#cc8800;--glow:rgba(68,85,238,0.25);
+  --text:#1a1d40;--text2:#3a4080;--text3:#7080b0;
+  --moon:#cc8800;--moon-glow:rgba(204,136,0,0.3);
+  --btn-bg:linear-gradient(135deg,#c8d0ff,#b0bcff);
+  --shadow:0 8px 32px rgba(60,80,180,0.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background var(--transition),color var(--transition);-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='hull' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23c8d4ff'/%3E%3Cstop offset='50%25' stop-color='%237b8cff'/%3E%3Cstop offset='100%25' stop-color='%233a4280'/%3E%3C/linearGradient%3E%3ClinearGradient id='engine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffd166'/%3E%3Cstop offset='100%25' stop-color='%23ff8800'/%3E%3C/linearGradient%3E%3C/defs%3E%3C!-- main hull: pointy nose top-left, slanted like a cursor --%3E%3Cpolygon points='2,2 18,10 12,16 4,20' fill='url(%23hull)' stroke='%234455cc' stroke-width='0.8'/%3E%3C!-- cockpit --%3E%3Cellipse cx='8' cy='8' rx='3' ry='2' fill='%2388aaff' opacity='0.85' transform='rotate(-45,8,8)'/%3E%3C!-- right wing --%3E%3Cpolygon points='12,16 22,22 16,24 10,20' fill='%235566cc' stroke='%233344aa' stroke-width='0.6'/%3E%3C!-- left wing --%3E%3Cpolygon points='4,20 10,20 8,28 2,26' fill='%235566cc' stroke='%233344aa' stroke-width='0.6'/%3E%3C!-- engine glow --%3E%3Ccircle cx='13' cy='22' r='3' fill='url(%23engine)' opacity='0.9'/%3E%3Ccircle cx='13' cy='22' r='1.5' fill='%23fff' opacity='0.7'/%3E%3C!-- engine trail --%3E%3Cellipse cx='17' cy='26' rx='2' ry='4' fill='%23ff8800' opacity='0.35' transform='rotate(40,17,26)'/%3E%3Cellipse cx='19' cy='28' rx='1' ry='3' fill='%23ffd166' opacity='0.2' transform='rotate(40,19,28)'/%3E%3C/svg%3E") 2 2, crosshair;
+}
+/* pointer cursor on clickable elements — !important to override everything */
+*{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='hull' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23c8d4ff'/%3E%3Cstop offset='50%25' stop-color='%237b8cff'/%3E%3Cstop offset='100%25' stop-color='%233a4280'/%3E%3C/linearGradient%3E%3ClinearGradient id='engine' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffd166'/%3E%3Cstop offset='100%25' stop-color='%23ff8800'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='2,2 18,10 12,16 4,20' fill='url(%23hull)' stroke='%234455cc' stroke-width='0.8'/%3E%3Cellipse cx='8' cy='8' rx='3' ry='2' fill='%2388aaff' opacity='0.85' transform='rotate(-45,8,8)'/%3E%3Cpolygon points='12,16 22,22 16,24 10,20' fill='%235566cc' stroke='%233344aa' stroke-width='0.6'/%3E%3Cpolygon points='4,20 10,20 8,28 2,26' fill='%235566cc' stroke='%233344aa' stroke-width='0.6'/%3E%3Ccircle cx='13' cy='22' r='3' fill='url(%23engine)' opacity='0.9'/%3E%3Ccircle cx='13' cy='22' r='1.5' fill='%23fff' opacity='0.7'/%3E%3Cellipse cx='17' cy='26' rx='2' ry='4' fill='%23ff8800' opacity='0.35' transform='rotate(40,17,26)'/%3E%3Cellipse cx='19' cy='28' rx='1' ry='3' fill='%23ffd166' opacity='0.2' transform='rotate(40,19,28)'/%3E%3C/svg%3E") 2 2, crosshair !important;}
+
+button,input,[role="button"],.upgrade-card:not(.locked),.planet-pip,.tab-btn,#theme-toggle,.btn-reset,.btn-next-planet,.btn-play-tab,#save-name-btn,a{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='hull2' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffe8a0'/%3E%3Cstop offset='50%25' stop-color='%23ffd166'/%3E%3Cstop offset='100%25' stop-color='%23cc8800'/%3E%3C/linearGradient%3E%3ClinearGradient id='engine2' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff6644'/%3E%3Cstop offset='100%25' stop-color='%23cc2200'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='2,2 18,10 12,16 4,20' fill='url(%23hull2)' stroke='%23cc9900' stroke-width='0.8'/%3E%3Cellipse cx='8' cy='8' rx='3' ry='2' fill='%23fffbe0' opacity='0.9' transform='rotate(-45,8,8)'/%3E%3Cpolygon points='12,16 22,22 16,24 10,20' fill='%23cc9900' stroke='%23aa7700' stroke-width='0.6'/%3E%3Cpolygon points='4,20 10,20 8,28 2,26' fill='%23cc9900' stroke='%23aa7700' stroke-width='0.6'/%3E%3Ccircle cx='13' cy='22' r='3' fill='url(%23engine2)' opacity='0.95'/%3E%3Ccircle cx='13' cy='22' r='1.5' fill='%23fff' opacity='0.8'/%3E%3Cellipse cx='17' cy='26' rx='2' ry='4' fill='%23ff4400' opacity='0.4' transform='rotate(40,17,26)'/%3E%3Cellipse cx='19' cy='28' rx='1' ry='3' fill='%23ffaa00' opacity='0.25' transform='rotate(40,19,28)'/%3E%3C/svg%3E") 2 2, pointer !important;
+}
+/* RED attack cursor for the planet click zone */
+.moon-container,.moon-container *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='hullr' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffaaaa'/%3E%3Cstop offset='50%25' stop-color='%23ff3333'/%3E%3Cstop offset='100%25' stop-color='%23880000'/%3E%3C/linearGradient%3E%3ClinearGradient id='enginer' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ff8800'/%3E%3Cstop offset='100%25' stop-color='%23ff2200'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='2,2 18,10 12,16 4,20' fill='url(%23hullr)' stroke='%23cc0000' stroke-width='0.8'/%3E%3Cellipse cx='8' cy='8' rx='3' ry='2' fill='%23ffdddd' opacity='0.9' transform='rotate(-45,8,8)'/%3E%3Cpolygon points='12,16 22,22 16,24 10,20' fill='%23cc0000' stroke='%23880000' stroke-width='0.6'/%3E%3Cpolygon points='4,20 10,20 8,28 2,26' fill='%23cc0000' stroke='%23880000' stroke-width='0.6'/%3E%3Ccircle cx='13' cy='22' r='3' fill='url(%23enginer)' opacity='0.95'/%3E%3Ccircle cx='13' cy='22' r='1.5' fill='%23fff' opacity='0.8'/%3E%3Cellipse cx='17' cy='26' rx='2' ry='4' fill='%23ff4400' opacity='0.5' transform='rotate(40,17,26)'/%3E%3Cellipse cx='19' cy='28' rx='1' ry='3' fill='%23ff8800' opacity='0.3' transform='rotate(40,19,28)'/%3E%3C/svg%3E") 2 2, crosshair !important;
+}
+
+/* STARFIELD */
+#starfield{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:#fff;opacity:0;animation:twinkle var(--dur,3s) var(--delay,0s) infinite ease-in-out;}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(1);}50%{opacity:var(--op,.8);transform:scale(1.3);}}
+[data-theme="light"] .star{background:#3344aa;}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.logo{font-family:'Orbitron',monospace;font-size:clamp(13px,3.5vw,20px);font-weight:900;letter-spacing:0.05em;color:var(--accent2);text-shadow:0 0 20px var(--glow);}
+.logo span{color:var(--moon);}
+.header-right{display:flex;align-items:center;gap:8px;}
+.tab-nav{display:flex;gap:4px;}
+.tab-btn{font-family:'Orbitron',monospace;font-size:11px;font-weight:600;letter-spacing:0.06em;padding:7px 13px;border-radius:8px;border:none;background:transparent;color:var(--text2);cursor:pointer;transition:color var(--transition),background var(--transition);}
+.tab-btn:hover,.tab-btn.active{color:var(--accent);background:var(--border);}
+#theme-toggle{background:var(--panel2);border:1px solid var(--border);border-radius:50%;width:38px;height:38px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.4s ease,background var(--transition);}
+#theme-toggle:hover{transform:rotate(20deg) scale(1.1);}
+
+/* TABS */
+.tab-panel{display:none;position:relative;z-index:1;}
+.tab-panel.active{display:block;}
+
+/* GAME LAYOUT */
+.game-wrap{display:grid;grid-template-columns:1fr 340px;gap:0;max-width:1200px;margin:0 auto;padding:20px 16px;align-items:start;}
+.game-center{display:flex;flex-direction:column;align-items:center;gap:18px;padding-right:24px;}
+
+/* STATS BAR */
+.stats-bar{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;}
+.stat-item{display:flex;flex-direction:column;gap:2px;}
+.stat-label{font-family:'Orbitron',monospace;font-size:9px;font-weight:600;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;}
+.stat-value{font-family:'Orbitron',monospace;font-size:clamp(12px,3vw,17px);font-weight:700;color:var(--accent3);text-shadow:0 0 10px rgba(255,209,102,0.4);}
+.stat-value.ps{color:var(--accent2);text-shadow:0 0 10px var(--glow);}
+
+/* USERNAME */
+.username-section{width:100%;display:flex;gap:8px;align-items:center;}
+.username-section input{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;transition:border-color var(--transition);}
+.username-section input:focus{border-color:var(--accent);}
+.username-section input::placeholder{color:var(--text3);}
+.btn-save{background:var(--btn-bg);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-family:'Orbitron',monospace;font-size:10px;font-weight:600;letter-spacing:0.06em;cursor:pointer;white-space:nowrap;transition:background var(--transition),transform 0.15s;}
+.btn-save:active{transform:scale(0.96);}
+
+/* ═══════════════════════════
+   PLANET SYSTEM
+═══════════════════════════ */
+.planet-section{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;flex-direction:column;gap:10px;}
+.planet-header{display:flex;align-items:center;justify-content:space-between;}
+.planet-label{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);}
+.planet-name-display{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--planet-color,var(--accent3));text-shadow:0 0 12px var(--planet-glow,var(--moon-glow));transition:color .5s,text-shadow .5s;}
+.planet-stage{font-family:'Orbitron',monospace;font-size:10px;color:var(--text3);}
+
+/* Health Bar */
+.hpbar-wrap{width:100%;display:flex;flex-direction:column;gap:5px;}
+.hpbar-track{width:100%;height:14px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;border:1px solid var(--border);position:relative;}
+.hpbar-fill{height:100%;border-radius:99px;transition:width .2s ease,background .5s;background:linear-gradient(90deg,var(--planet-color,#ffd166),var(--planet-glow-solid,#ffaa00));box-shadow:0 0 8px var(--planet-glow,rgba(255,209,102,0.5));}
+.hpbar-text{display:flex;justify-content:space-between;align-items:center;}
+.hpbar-hp{font-family:'Orbitron',monospace;font-size:10px;color:var(--text2);}
+.hpbar-pct{font-family:'Orbitron',monospace;font-size:10px;color:var(--planet-color,var(--accent3));font-weight:700;}
+
+/* Planet Progression Row */
+.planet-progress-row{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;}
+.planet-pip{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .3s;cursor:pointer;position:relative;}
+.planet-pip.done{border-color:var(--accent2);background:rgba(123,140,255,0.15);}
+.planet-pip.current{border-color:var(--planet-color,var(--accent3));background:rgba(255,209,102,0.12);box-shadow:0 0 8px var(--planet-glow,rgba(255,209,102,0.4));animation:pip-pulse 2s ease-in-out infinite;}
+@keyframes pip-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+.planet-pip.locked{opacity:.35;}
+
+/* PIP TOOLTIP */
+.pip-tooltip{
+  position:absolute;bottom:calc(100% + 10px);left:50%;
+  transform:translateX(-50%) translateY(4px);
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:12px;padding:10px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  width:130px;pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease,transform .18s ease;
+  z-index:300;box-shadow:0 8px 24px rgba(0,0,0,.55);
+}
+.planet-pip:hover .pip-tooltip{opacity:1;transform:translateX(-50%) translateY(0);}
+.planet-pip:nth-child(1) .pip-tooltip,.planet-pip:nth-child(2) .pip-tooltip{left:0;transform:translateY(4px) translateX(0);}
+.planet-pip:nth-child(1):hover .pip-tooltip,.planet-pip:nth-child(2):hover .pip-tooltip{transform:translateY(0) translateX(0);}
+.planet-pip:nth-last-child(1) .pip-tooltip,.planet-pip:nth-last-child(2) .pip-tooltip{left:auto;right:0;transform:translateY(4px) translateX(0);}
+.planet-pip:nth-last-child(1):hover .pip-tooltip,.planet-pip:nth-last-child(2):hover .pip-tooltip{transform:translateY(0) translateX(0);}
+.pip-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--border);}
+.planet-pip:nth-child(1) .pip-tooltip::after,.planet-pip:nth-child(2) .pip-tooltip::after{left:13px;transform:none;}
+.planet-pip:nth-last-child(1) .pip-tooltip::after,.planet-pip:nth-last-child(2) .pip-tooltip::after{left:auto;right:13px;transform:none;}
+.pip-thumb{width:64px;height:64px;border-radius:50%;flex-shrink:0;display:block;}
+.pip-tooltip-name{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:var(--text);letter-spacing:.04em;text-align:center;line-height:1.3;}
+.pip-tooltip-hp{font-family:'Orbitron',monospace;font-size:9px;color:var(--accent3);text-align:center;}
+.pip-tooltip-status{font-size:9px;font-family:'Orbitron',monospace;letter-spacing:.06em;text-align:center;}
+.pip-tooltip-status.done{color:#c8b4ff;}.pip-tooltip-status.current{color:var(--accent3);}.pip-tooltip-status.locked{color:var(--text3);}
+
+/* PLANET CLICK BUTTON */
+.moon-container{position:relative;width:clamp(170px,42vw,250px);height:clamp(170px,42vw,250px);cursor:pointer;user-select:none;}
+.moon-glow-ring{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,var(--planet-glow,var(--moon-glow)) 0%,transparent 70%);animation:pulse-glow 2.5s ease-in-out infinite;pointer-events:none;transition:background .5s;}
+@keyframes pulse-glow{0%,100%{transform:scale(1);opacity:.7;}50%{transform:scale(1.08);opacity:1;}}
+.moon-body{width:100%;height:100%;border-radius:50%;transition:transform .12s ease,box-shadow .12s ease,background .5s;position:relative;overflow:hidden;}
+.moon-body::before{content:'';position:absolute;width:28%;height:28%;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,.2),transparent 70%);top:28%;left:55%;}
+.moon-body::after{content:'';position:absolute;width:16%;height:16%;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,.16),transparent 70%);top:60%;left:25%;}
+.moon-container:active .moon-body,.moon-container.clicking .moon-body{transform:scale(0.93);}
+.moon-emoji{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(55px,14vw,85px);pointer-events:none;user-select:none;transition:filter .5s;}
+
+/* DEFEAT FLASH */
+@keyframes defeat-flash{0%{transform:scale(1);}20%{transform:scale(1.12);}40%{transform:scale(0.95);}60%{transform:scale(1.06);}80%{transform:scale(0.98);}100%{transform:scale(1);}}
+.moon-body.defeat{animation:defeat-flash .6s ease;}
+
+/* CLICK FX */
+.click-fx{position:fixed;pointer-events:none;z-index:999;font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--planet-color,var(--moon));text-shadow:0 0 10px var(--planet-glow,var(--moon-glow));animation:fx-float .9s ease-out forwards;}
+@keyframes fx-float{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-80px) scale(1.3);}}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent);border-radius:14px;padding:14px 24px;font-family:'Orbitron',monospace;font-size:13px;color:var(--accent2);text-align:center;box-shadow:0 0 30px var(--glow);opacity:0;pointer-events:none;z-index:200;transition:opacity .3s;max-width:92vw;}
+#toast.show{opacity:1;}
+
+/* UPGRADES */
+.upgrades-panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 140px);position:sticky;top:90px;}
+.panel-header{padding:14px 18px;background:var(--panel2);border-bottom:1px solid var(--border);font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--accent2);text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;}
+.upgrades-list{overflow-y:auto;flex:1;padding:10px;display:flex;flex-direction:column;gap:9px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.upgrade-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:13px;cursor:pointer;user-select:none;transition:border-color var(--transition),transform .15s,background var(--transition);display:flex;gap:11px;align-items:center;}
+.upgrade-card:hover:not(.locked){border-color:var(--accent);background:rgba(123,140,255,.08);transform:translateX(-2px);}
+.upgrade-card:active:not(.locked){transform:scale(0.97);}
+.upgrade-card.locked{opacity:.4;cursor:not-allowed;}
+.upgrade-card.locked:hover{transform:none;border-color:var(--border);}
+.upgrade-icon{font-size:24px;flex-shrink:0;}
+.upgrade-info{flex:1;min-width:0;}
+.upgrade-name{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--text);letter-spacing:.04em;margin-bottom:3px;}
+.upgrade-desc{font-size:11px;color:var(--text2);line-height:1.4;margin-bottom:4px;}
+.upgrade-cost{font-family:'Orbitron',monospace;font-size:11px;font-weight:600;color:var(--accent3);}
+.upgrade-owned{font-family:'Orbitron',monospace;font-size:10px;color:var(--text3);text-align:right;flex-shrink:0;}
+
+/* LEADERBOARD */
+.leaderboard{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:18px;width:100%;}
+.leaderboard .panel-header{display:flex;justify-content:space-between;align-items:center;}
+.leaderboard-list{padding:8px 12px;}
+.lb-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;font-size:13px;transition:background var(--transition);}
+.lb-row:hover{background:var(--panel2);}
+.lb-rank{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--text3);width:20px;text-align:center;flex-shrink:0;}
+.lb-rank.gold{color:#ffd166;}.lb-rank.silver{color:#b0b8d0;}.lb-rank.bronze{color:#cd7f32;}
+.lb-name{flex:1;color:var(--text);font-weight:500;}
+.lb-name.you{color:var(--accent);font-weight:700;}
+.lb-score{font-family:'Orbitron',monospace;font-size:11px;color:var(--accent3);font-weight:600;}
+.btn-reset{margin:12px;background:transparent;border:1px solid rgba(255,80,80,.3);border-radius:8px;padding:8px;color:rgba(255,80,80,.6);font-size:11px;font-family:'Orbitron',monospace;letter-spacing:.06em;cursor:pointer;transition:all var(--transition);}
+.btn-reset:hover{border-color:#ff5050;color:#ff5050;background:rgba(255,80,80,.05);}
+
+/* VICTORY OVERLAY */
+#victory-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(8,9,15,0.92);align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:20px;}
+#victory-overlay.show{display:flex;}
+.victory-emoji{font-size:80px;animation:victory-bounce 0.6s ease infinite alternate;}
+@keyframes victory-bounce{from{transform:translateY(0) scale(1);}to{transform:translateY(-12px) scale(1.08);}}
+.victory-title{font-family:'Orbitron',monospace;font-size:clamp(22px,6vw,36px);font-weight:900;color:var(--accent2);text-shadow:0 0 30px var(--glow);}
+.victory-sub{font-size:15px;color:var(--text2);max-width:400px;line-height:1.6;}
+.victory-sub strong{color:var(--accent3);}
+.btn-next-planet{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;padding:14px 32px;color:#fff;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:.08em;cursor:pointer;box-shadow:0 0 24px var(--glow);transition:transform .2s,box-shadow .2s;margin-top:8px;}
+.btn-next-planet:hover{transform:scale(1.05);box-shadow:0 0 36px var(--glow);}
+.victory-stars{font-size:28px;letter-spacing:8px;}
+
+/* ALL CONQUERED */
+#conquered-banner{display:none;width:100%;background:linear-gradient(135deg,rgba(123,140,255,.15),rgba(200,180,255,.1));border:1px solid var(--accent2);border-radius:var(--radius);padding:18px;text-align:center;}
+#conquered-banner.show{display:block;}
+.conquered-title{font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--accent2);text-shadow:0 0 20px var(--glow);margin-bottom:6px;}
+.conquered-sub{font-size:13px;color:var(--text2);}
+
+/* HOW I BUILT THIS */
+.hibt-wrap{max-width:820px;margin:0 auto;padding:48px 20px 80px;}
+.page-hero{text-align:center;margin-bottom:56px;}
+.page-title{font-family:'Orbitron',monospace;font-size:clamp(22px,6vw,38px);font-weight:900;letter-spacing:.04em;color:var(--accent2);text-shadow:0 0 30px var(--glow);margin-bottom:12px;}
+.page-subtitle{font-size:15px;color:var(--text2);line-height:1.6;max-width:560px;margin:0 auto;}
+.page-subtitle strong{color:var(--accent3);}
+.timeline{position:relative;padding-left:28px;}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--accent2),var(--accent3));border-radius:2px;opacity:.4;}
+.tl-item{position:relative;margin-bottom:40px;padding-left:24px;}
+.tl-item::before{content:'';position:absolute;left:-34px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--bg),0 0 12px var(--glow);border:2px solid var(--accent);}
+.tl-item:nth-child(2n)::before{background:var(--accent2);border-color:var(--accent2);}
+.tl-item:nth-child(3n)::before{background:var(--accent3);border-color:var(--accent3);}
+.tl-label{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.tl-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;transition:border-color var(--transition),transform .2s;}
+.tl-card:hover{border-color:var(--accent);transform:translateX(4px);}
+.tl-prompt{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;}
+.tl-prompt-tag{background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.25);border-radius:6px;padding:2px 8px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.1em;color:var(--accent3);flex-shrink:0;margin-top:2px;}
+.tl-prompt-text{flex:1;color:var(--text);font-size:13px;font-style:italic;line-height:1.6;}
+.tl-result{font-size:13px;color:var(--text2);line-height:1.7;padding-top:10px;border-top:1px solid var(--border);margin-top:10px;}
+.tl-result strong{color:var(--accent2);}
+.closing-card{background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:center;margin-top:12px;}
+.closing-card h3{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--accent2);margin-bottom:12px;}
+.closing-card p{font-size:13px;color:var(--text2);line-height:1.7;}
+.btn-play-tab{display:inline-block;margin-top:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 0 20px var(--glow);}
+.btn-play-tab:hover{transform:translateY(-2px);box-shadow:0 0 30px var(--glow);}
+
+/* ════════════════════════════
+   CPS TEST TAB
+════════════════════════════ */
+.cps-wrap{max-width:680px;margin:0 auto;padding:40px 20px 80px;display:flex;flex-direction:column;align-items:center;gap:28px;}
+.cps-title{font-family:'Orbitron',monospace;font-size:clamp(20px,5vw,34px);font-weight:900;color:var(--accent2);text-shadow:0 0 24px var(--glow);text-align:center;letter-spacing:.04em;}
+.cps-subtitle{font-size:14px;color:var(--text2);text-align:center;line-height:1.6;max-width:460px;}
+.cps-subtitle strong{color:var(--accent3);}
+
+/* timer ring */
+.cps-timer-ring{position:relative;width:130px;height:130px;flex-shrink:0;}
+.cps-ring-svg{width:130px;height:130px;transform:rotate(-90deg);}
+.cps-ring-bg{fill:none;stroke:var(--border);stroke-width:8;}
+.cps-ring-fill{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;stroke-dasharray:345;stroke-dashoffset:0;transition:stroke-dashoffset .1s linear,stroke .3s;}
+.cps-timer-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.cps-countdown{font-family:'Orbitron',monospace;font-size:32px;font-weight:900;color:var(--accent);line-height:1;}
+.cps-countdown-label{font-family:'Orbitron',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-top:2px;}
+
+/* click zone */
+.cps-click-zone{
+  width:100%;max-width:480px;height:180px;
+  background:var(--panel);border:2px dashed var(--border);border-radius:20px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  cursor:pointer;user-select:none;
+  transition:border-color .2s,background .2s,transform .08s;
+  position:relative;overflow:hidden;
+}
+.cps-click-zone:hover{border-color:var(--accent);background:var(--panel2);}
+.cps-click-zone.active{border-color:var(--accent);border-style:solid;background:rgba(123,140,255,.07);}
+.cps-click-zone.pressed{transform:scale(0.975);}
+.cps-zone-icon{font-size:44px;pointer-events:none;transition:transform .08s;}
+.cps-click-zone.pressed .cps-zone-icon{transform:scale(0.88);}
+.cps-zone-label{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--text2);pointer-events:none;}
+.cps-zone-sublabel{font-size:11px;color:var(--text3);pointer-events:none;}
+.cps-live-count{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:var(--accent3);pointer-events:none;text-shadow:0 0 12px rgba(255,209,102,.5);}
+
+/* stats row */
+.cps-stats-row{display:flex;gap:14px;width:100%;max-width:480px;}
+.cps-stat-box{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;display:flex;flex-direction:column;gap:4px;}
+.cps-stat-val{font-family:'Orbitron',monospace;font-size:clamp(16px,4vw,22px);font-weight:900;color:var(--accent3);}
+.cps-stat-lbl{font-family:'Orbitron',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;}
+
+/* duration selector */
+.cps-duration-row{display:flex;gap:8px;align-items:center;}
+.cps-dur-label{font-family:'Orbitron',monospace;font-size:10px;color:var(--text3);letter-spacing:.08em;}
+.cps-dur-btn{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text2);cursor:pointer;transition:all .2s;}
+.cps-dur-btn.active,.cps-dur-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(123,140,255,.1);}
+
+.cps-reset-btn{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;padding:12px 32px;border-radius:10px;border:1px solid var(--border);background:var(--btn-bg);color:var(--text);cursor:pointer;transition:transform .15s,box-shadow .2s;}
+.cps-reset-btn:hover{box-shadow:0 0 16px var(--glow);}
+.cps-reset-btn:active{transform:scale(0.96);}
+
+/* best score */
+.cps-best{font-family:'Orbitron',monospace;font-size:11px;color:var(--text3);text-align:center;}
+.cps-best span{color:var(--accent2);}
+
+/* RESULT POPUP */
+#cps-result-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(8,9,15,0.94);align-items:center;justify-content:center;padding:20px;}
+#cps-result-overlay.show{display:flex;}
+.cps-result-card{background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:36px 32px;max-width:420px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:0 0 60px var(--glow);position:relative;}
+.cps-result-animal{font-size:90px;animation:animal-bounce .7s ease infinite alternate;line-height:1;}
+@keyframes animal-bounce{from{transform:translateY(0) scale(1);}to{transform:translateY(-10px) scale(1.06);}}
+.cps-result-role{font-family:'Orbitron',monospace;font-size:clamp(18px,5vw,26px);font-weight:900;color:var(--accent3);text-shadow:0 0 20px rgba(255,209,102,.5);letter-spacing:.04em;}
+.cps-result-animal-name{font-family:'Orbitron',monospace;font-size:13px;color:var(--accent2);letter-spacing:.1em;}
+.cps-result-cps{font-family:'Orbitron',monospace;font-size:38px;font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--glow);}
+.cps-result-cps-label{font-family:'Orbitron',monospace;font-size:10px;color:var(--text3);letter-spacing:.12em;margin-top:-10px;}
+.cps-result-clicks{font-size:13px;color:var(--text2);}
+.cps-result-desc{font-size:13px;color:var(--text2);line-height:1.7;max-width:320px;}
+.cps-result-desc strong{color:var(--accent3);}
+.cps-result-divider{width:60%;height:1px;background:var(--border);}
+.cps-result-share-row{display:flex;gap:10px;}
+.cps-result-btn{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;padding:11px 22px;border-radius:10px;border:none;cursor:pointer;transition:transform .15s,box-shadow .2s;}
+.cps-result-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 0 16px var(--glow);}
+.cps-result-btn.primary:hover{transform:scale(1.04);box-shadow:0 0 28px var(--glow);}
+.cps-result-btn.secondary{background:var(--panel);border:1px solid var(--border);color:var(--text2);}
+.cps-result-btn.secondary:hover{border-color:var(--accent);color:var(--accent);}
+/* rank bar */
+.cps-rank-bar{width:100%;display:flex;flex-direction:column;gap:6px;}
+.cps-rank-bar-track{width:100%;height:10px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;}
+.cps-rank-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width .8s cubic-bezier(.4,0,.2,1);}
+.cps-rank-labels{display:flex;justify-content:space-between;font-family:'Orbitron',monospace;font-size:8px;color:var(--text3);}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .game-wrap{grid-template-columns:1fr;padding:12px 10px;gap:16px;}
+  .game-center{padding-right:0;}
+  .upgrades-panel{position:static;max-height:none;}
+  .upgrades-list{max-height:260px;}
+}
+@media(max-width:420px){
+  .logo{font-size:12px;}
+  .tab-btn{font-size:9px;padding:5px 8px;}
+  .hibt-wrap{padding:28px 12px 60px;}
+  .timeline{padding-left:18px;}
+  .tl-item{padding-left:16px;}
+  .tl-item::before{left:-26px;width:12px;height:12px;}
+  .planet-pip{width:18px;height:18px;font-size:9px;}
+}
+</style>
+</head>
+<body>
+<div id="starfield"></div>
+
+<header>
+  <div class="logo">🌙 <span>Moon</span>Clicker</div>
+  <div class="header-right">
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="game">🎮 Game</button>
+      <button class="tab-btn" data-tab="cps">⚡ CPS Test</button>
+      <button class="tab-btn" data-tab="hibt">🚀 How I Built This</button>
+    </nav>
+    <button id="theme-toggle" title="Toggle light/dark mode">🌙</button>
+  </div>
+</header>
+
+<!-- ══════════ GAME TAB ══════════ -->
+<div class="tab-panel active" id="tab-game">
+  <div class="game-wrap">
+    <div class="game-center">
+
+      <div class="username-section">
+        <input type="text" id="username-input" placeholder="Enter your name to track score..." maxlength="20" />
+        <button class="btn-save" id="save-name-btn">SET NAME</button>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-label">☄️ Stardust</div>
+          <div class="stat-value" id="stat-count">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">⚡ Per Tap</div>
+          <div class="stat-value" id="stat-per-tap">1</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">🔭 Per Sec</div>
+          <div class="stat-value ps" id="stat-per-sec">0/s</div>
+        </div>
+      </div>
+
+      <!-- PLANET SECTION -->
+      <div class="planet-section" id="planet-section">
+        <div class="planet-header">
+          <div>
+            <div class="planet-label">Current Target</div>
+            <div class="planet-name-display" id="planet-name">The Moon</div>
+          </div>
+          <div class="planet-stage" id="planet-stage">Planet 1 / 10</div>
+        </div>
+
+        <div class="hpbar-wrap">
+          <div class="hpbar-track">
+            <div class="hpbar-fill" id="hpbar-fill" style="width:100%"></div>
+          </div>
+          <div class="hpbar-text">
+            <div class="hpbar-hp" id="hpbar-hp">1,000 / 1,000 HP</div>
+            <div class="hpbar-pct" id="hpbar-pct">100%</div>
+          </div>
+        </div>
+
+        <div class="planet-progress-row" id="planet-pips"></div>
+      </div>
+
+      <!-- CONQUERED BANNER (shows after all 10 done) -->
+      <div id="conquered-banner">
+        <div class="conquered-title">🌌 COSMOS CONQUERED 🌌</div>
+        <div class="conquered-sub">You've defeated all 10 planets. The universe bows to you. Keep collecting stardust for eternal glory!</div>
+      </div>
+
+      <!-- PLANET / MOON CLICK BUTTON -->
+      <div class="moon-container" id="moon-btn" role="button" tabindex="0" aria-label="Tap the planet to deal damage and collect stardust">
+        <div class="moon-glow-ring" id="planet-glow-ring"></div>
+        <div class="moon-body" id="planet-body">
+          <div class="moon-emoji" id="planet-emoji">🌕</div>
+        </div>
+      </div>
+
+      <div class="leaderboard" style="width:100%">
+        <div class="panel-header">
+          <span>🏆 Leaderboard</span>
+          <span style="font-size:10px;color:var(--text3);font-weight:400">This Browser</span>
+        </div>
+        <div class="leaderboard-list" id="leaderboard-list">
+          <div style="padding:12px;color:var(--text3);font-size:12px;text-align:center">Set a name and start tapping!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPGRADES PANEL -->
+    <div>
+      <div class="upgrades-panel">
+        <div class="panel-header">🚀 Upgrades</div>
+        <div class="upgrades-list" id="upgrades-list"></div>
+        <button class="btn-reset" id="reset-btn">RESET PROGRESS</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CPS TEST TAB ══════════ -->
+<div class="tab-panel" id="tab-cps">
+  <div class="cps-wrap">
+    <div class="cps-title">⚡ Click Speed Test</div>
+    <p class="cps-subtitle">Click as fast as you can! Find out which animal matches your clicking speed. Choose a duration, then smash the zone to begin.</p>
+
+    <!-- duration selector -->
+    <div class="cps-duration-row">
+      <span class="cps-dur-label">DURATION:</span>
+      <button class="cps-dur-btn active" data-dur="5">5s</button>
+      <button class="cps-dur-btn" data-dur="10">10s</button>
+      <button class="cps-dur-btn" data-dur="15">15s</button>
+      <button class="cps-dur-btn" data-dur="30">30s</button>
+    </div>
+
+    <!-- timer ring + stats side by side -->
+    <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%;max-width:480px;">
+      <div class="cps-timer-ring">
+        <svg class="cps-ring-svg" viewBox="0 0 120 120">
+          <circle class="cps-ring-bg" cx="60" cy="60" r="54"/>
+          <circle class="cps-ring-fill" id="cps-ring-fill" cx="60" cy="60" r="54"/>
+        </svg>
+        <div class="cps-timer-text">
+          <div class="cps-countdown" id="cps-countdown">5</div>
+          <div class="cps-countdown-label">SECONDS</div>
+        </div>
+      </div>
+      <div class="cps-stats-row" style="flex:1;min-width:180px;">
+        <div class="cps-stat-box">
+          <div class="cps-stat-val" id="cps-live-cps">0.0</div>
+          <div class="cps-stat-lbl">CPS</div>
+        </div>
+        <div class="cps-stat-box">
+          <div class="cps-stat-val" id="cps-live-clicks">0</div>
+          <div class="cps-stat-lbl">Clicks</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- click zone -->
+    <div class="cps-click-zone" id="cps-zone" role="button" tabindex="0" aria-label="Click here to start the CPS test">
+      <div class="cps-zone-icon" id="cps-zone-icon">🖱️</div>
+      <div class="cps-live-count" id="cps-zone-count" style="display:none">0</div>
+      <div class="cps-zone-label" id="cps-zone-label">CLICK TO START</div>
+      <div class="cps-zone-sublabel" id="cps-zone-sublabel">Tap or click anywhere in this zone</div>
+    </div>
+
+    <div class="cps-best" id="cps-best-display">Best: — CPS</div>
+    <button class="cps-reset-btn" id="cps-reset-btn">↺ RESET</button>
+  </div>
+</div>
+
+<!-- CPS RESULT POPUP -->
+<div id="cps-result-overlay">
+  <div class="cps-result-card">
+    <div class="cps-result-animal" id="cps-res-animal">🐢</div>
+    <div class="cps-result-role" id="cps-res-role">Sleepy Clicker</div>
+    <div class="cps-result-animal-name" id="cps-res-name">THE TORTOISE</div>
+    <div class="cps-result-cps" id="cps-res-cps">0.0</div>
+    <div class="cps-result-cps-label">CLICKS PER SECOND</div>
+    <div class="cps-result-clicks" id="cps-res-clicks">0 total clicks in 5 seconds</div>
+    <div class="cps-result-divider"></div>
+    <div class="cps-rank-bar">
+      <div class="cps-rank-bar-track"><div class="cps-rank-bar-fill" id="cps-rank-fill" style="width:0%"></div></div>
+      <div class="cps-rank-labels"><span>0 CPS</span><span>5</span><span>10</span><span>15+</span></div>
+    </div>
+    <div class="cps-result-desc" id="cps-res-desc">Keep practicing!</div>
+    <div class="cps-result-share-row">
+      <button class="cps-result-btn primary" id="cps-try-again-btn">Try Again</button>
+      <button class="cps-result-btn secondary" id="cps-close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="tab-panel" id="tab-hibt">
+  <div class="hibt-wrap">
+    <div class="page-hero">
+      <div class="page-title">How I Built This 🚀</div>
+      <p class="page-subtitle">
+        This entire website was built using <strong>Claude (by Anthropic)</strong> as my AI coding tool.
+        No code was written manually — everything was generated through prompting.
+        Below is a timeline of the key prompts I used and what each one produced.
+      </p>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-label">Step 01 — Defining the Project</div>
+        <div class="tl-card">
+          <div class="tl-prompt">
+            <span class="tl-prompt-tag">PROMPT</span>
+            <span class="tl-prompt-text">"I need assistance in my Data Structures and Algorithms Final Project. I want the website to feature a mouse clicker game such as cookie clicker, and I want it uploaded to GitHub so it is available to the public. You must do everything on your own, such as coding and deployment."</span>
+          </div>
+          <div class="tl-result">Claude read the assignment PDF and confirmed all requirements: build using AI only, no manual coding, deploy publicly, include a process page. It asked clarifying questions about theme, users, and page style before writing any code — making sure the full scope was understood first.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-label">Step 02 — Choosing Design & Features</div>
+        <div class="tl-card">
+          <div class="tl-prompt">
+            <span class="tl-prompt-tag">PROMPT</span>
+            <span class="tl-prompt-text">"🌙 Moon / Space theme. Multiple users should be able to play — not just me. Dark themed with a light mode toggle (sun or moon emoji) top right. Mobile friendly on ALL resolutions with tap gestures. Save progress per browser."</span>
+          </div>
+          <div class="tl-result">Claude locked in the full feature set: space-themed idle clicker with <strong>localStorage</strong> for per-browser save data, a 🌙/☀️ theme toggle, fully mobile-responsive layout using pointer events for native tap support, floating click effects, milestone toast notifications, a leaderboard, and 12 unlockable upgrades.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-label">Step 03 — Building the Game</div>
+        <div class="tl-card">
+          <div class="tl-prompt">
+            <span class="tl-prompt-tag">PROMPT</span>
+            <span class="tl-prompt-text">"Build the full game now based on everything we discussed."</span>
+          </div>
+          <div class="tl-result">Claude produced the complete game page. Features include: an animated starfield background, a glowing 3D moon with crater details and tap animation, a stats bar tracking stardust / per tap / per second, <strong>12 space-themed upgrades</strong> (Lunar Lens → Satellite Array → Black Hole Trap → Galaxy Merger → Big Bang Tap) with scaling costs, auto-production per second, floating +N tap effects, milestone notifications, a per-browser leaderboard, and a reset option.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-label">Step 04 — Building This Page</div>
+        <div class="tl-card">
+          <div class="tl-prompt">
+            <span class="tl-prompt-tag">PROMPT</span>
+            <span class="tl-prompt-text">"For the How I Built This section, can we make it a separate tab on the same HTML rather than redirecting to another page? And just show the important prompts — clean timeline format."</span>
+          </div>
+          <div class="tl-result">Claude merged both pages into a single <strong>index.html</strong> file with an in-page tab switcher. The "How I Built This" tab uses the same design language — starfield, theme toggle, Orbitron font, timeline layout — so the whole experience feels cohesive. No redirect, no second file needed.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-label">Step 05 — Deployment</div>
+        <div class="tl-card">
+          <div class="tl-prompt">
+            <span class="tl-prompt-tag">PROMPT</span>
+            <span class="tl-prompt-text">"Deploy this to GitHub Pages so it is publicly accessible."</span>
+          </div>
+          <div class="tl-result">The completed <code>index.html</code> was uploaded to a public GitHub repository and published via <strong>GitHub Pages</strong>. The site went live at a public URL with no server, no cost, and no backend. Anyone with the link can play the game and view this page instantly.</div>
+        </div>
+      </div>
+    </div>
+    <div class="closing-card">
+      <h3>✅ Assignment Requirements — All Met</h3>
+      <p>Built entirely with AI (Claude by Anthropic) ✓ &nbsp;·&nbsp; No manual coding ✓ &nbsp;·&nbsp; Deployed publicly via GitHub Pages ✓<br>Real game with upgrades, save system &amp; leaderboard ✓ &nbsp;·&nbsp; Process documentation included ✓</p>
+      <button class="btn-play-tab" id="go-to-game">🌙 Play the Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- VICTORY OVERLAY -->
+<div id="victory-overlay">
+  <div class="victory-stars" id="victory-stars">⭐⭐⭐</div>
+  <div class="victory-emoji" id="victory-emoji">🌕</div>
+  <div class="victory-title" id="victory-title">Planet Defeated!</div>
+  <div class="victory-sub" id="victory-sub">You conquered <strong>The Moon</strong>!<br>Next up: a tougher world awaits...</div>
+  <button class="btn-next-planet" id="btn-next-planet">Next Planet →</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════
+   STARFIELD
+════════════════════════════ */
+(function(){
+  const sf=document.getElementById('starfield');
+  for(let i=0;i<120;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2.5+0.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;--delay:${Math.random()*5}s;--op:${0.3+Math.random()*0.7};`;
+    sf.appendChild(s);
+  }
+})();
+
+/* ════════════════════════════
+   THEME
+════════════════════════════ */
+const themeBtn=document.getElementById('theme-toggle');
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);themeBtn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('mc_theme',t);}
+themeBtn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+applyTheme(localStorage.getItem('mc_theme')||'dark');
+
+/* ════════════════════════════
+   TABS
+════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+document.getElementById('go-to-game').addEventListener('click',()=>document.querySelector('[data-tab="game"]').click());
+
+/* ════════════════════════════
+   PLANET DEFINITIONS
+   HP scaled: planet 1 = 1,000 → planet 10 = 1,000,000
+   Formula: hp[i] = round(1000 * (1000^(i/9)))  (geometric scale)
+════════════════════════════ */
+const PLANETS = [
+  { name:'The Moon',      emoji:'🌕', color:'#ffd166', glowSolid:'#cc9900', glow:'rgba(255,209,102,0.45)', bg:'radial-gradient(circle at 35% 35%,#fffde0 0%,#ffd166 40%,#cc9900 75%,#8a6200 100%)', hp:1000    },
+  { name:'Mercury',       emoji:'🪨', color:'#c0b49a', glowSolid:'#8a7a60', glow:'rgba(192,180,154,0.45)', bg:'radial-gradient(circle at 35% 35%,#e0d8c8 0%,#b0a080 40%,#806040 75%,#504030 100%)', hp:3000    },
+  { name:'Venus',         emoji:'🌟', color:'#ffbb44', glowSolid:'#cc8800', glow:'rgba(255,187,68,0.45)',  bg:'radial-gradient(circle at 35% 35%,#fff0c0 0%,#ffcc55 40%,#cc8800 75%,#885500 100%)', hp:8000    },
+  { name:'Earth',         emoji:'🌍', color:'#44aaff', glowSolid:'#0066cc', glow:'rgba(68,170,255,0.45)', bg:'radial-gradient(circle at 35% 35%,#c0e8ff 0%,#44aaff 35%,#228844 60%,#0044aa 100%)', hp:20000   },
+  { name:'Mars',          emoji:'🔴', color:'#ff6644', glowSolid:'#cc2200', glow:'rgba(255,102,68,0.45)', bg:'radial-gradient(circle at 35% 35%,#ffc0a0 0%,#ff6644 40%,#cc2200 75%,#880000 100%)', hp:50000   },
+  { name:'Jupiter',       emoji:'🟠', color:'#ffaa66', glowSolid:'#cc6600', glow:'rgba(255,170,102,0.45)',bg:'radial-gradient(circle at 35% 35%,#ffe8c0 0%,#ffaa66 30%,#cc6600 60%,#ff8844 80%,#884400 100%)',hp:120000  },
+  { name:'Saturn',        emoji:'🪐', color:'#ddcc88', glowSolid:'#aa8844', glow:'rgba(221,204,136,0.45)',bg:'radial-gradient(circle at 35% 35%,#fff8e0 0%,#ddcc88 40%,#aa8844 75%,#665500 100%)', hp:280000  },
+  { name:'Uranus',        emoji:'🔵', color:'#88eeff', glowSolid:'#0099bb', glow:'rgba(136,238,255,0.45)',bg:'radial-gradient(circle at 35% 35%,#e0faff 0%,#88eeff 40%,#0099bb 75%,#005577 100%)', hp:550000  },
+  { name:'Neptune',       emoji:'💙', color:'#4466ff', glowSolid:'#0022cc', glow:'rgba(68,102,255,0.45)', bg:'radial-gradient(circle at 35% 35%,#c0c8ff 0%,#4466ff 40%,#0022cc 75%,#000088 100%)', hp:750000  },
+  { name:'Planet X',      emoji:'💀', color:'#cc44ff', glowSolid:'#880088', glow:'rgba(204,68,255,0.5)',  bg:'radial-gradient(circle at 35% 35%,#f0c0ff 0%,#cc44ff 30%,#880088 65%,#440044 100%)', hp:1000000 },
+];
+
+/* ════════════════════════════
+   GAME STATE
+════════════════════════════ */
+const SAVE_KEY='mc_save_v3';
+function defaultState(){
+  return{count:0,totalEarned:0,perTap:1,perSec:0,owned:{},username:'',
+         planetIndex:0,planetHP:PLANETS[0].hp,defeatedPlanets:[]};
+}
+function loadState(){
+  try{const r=localStorage.getItem(SAVE_KEY);return r?{...defaultState(),...JSON.parse(r)}:defaultState();}
+  catch{return defaultState();}
+}
+function saveState(){localStorage.setItem(SAVE_KEY,JSON.stringify(state));updateLeaderboard();}
+let state=loadState();
+// guard: make sure planetHP is valid on load
+if(state.planetHP===undefined||state.planetHP===null) state.planetHP=PLANETS[state.planetIndex].hp;
+let milestonesHit=new Set(JSON.parse(localStorage.getItem('mc_milestones')||'[]'));
+
+/* ════════════════════════════
+   PLANET UI
+════════════════════════════ */
+function applyPlanetTheme(p){
+  const root=document.documentElement;
+  root.style.setProperty('--planet-color',p.color);
+  root.style.setProperty('--planet-glow',p.glow);
+  root.style.setProperty('--planet-glow-solid',p.glowSolid);
+  document.getElementById('planet-body').style.background=p.bg;
+  document.getElementById('planet-body').style.boxShadow=
+    `inset -25px -15px 40px rgba(0,0,0,.35),inset 10px 8px 20px rgba(255,255,255,.12),0 0 50px ${p.glow},0 0 100px ${p.glow.replace('.45','0.15').replace('.5','0.15')}`;
+  document.getElementById('planet-emoji').style.filter=`drop-shadow(0 0 14px ${p.glow})`;
+  document.getElementById('planet-name').style.color=p.color;
+  document.getElementById('planet-name').style.textShadow=`0 0 12px ${p.glow}`;
+  document.getElementById('hpbar-pct').style.color=p.color;
+}
+
+function renderPlanetUI(){
+  const idx=state.planetIndex;
+  const allDone=idx>=PLANETS.length;
+  document.getElementById('planet-section').style.display=allDone?'none':'flex';
+  document.getElementById('conquered-banner').classList.toggle('show',allDone);
+  if(allDone){applyPlanetTheme(PLANETS[PLANETS.length-1]);return;}
+
+  const p=PLANETS[idx];
+  const maxHP=p.hp;
+  const curHP=state.planetHP;
+  const pct=Math.max(0,Math.min(100,(curHP/maxHP)*100));
+
+  document.getElementById('planet-name').textContent=p.name;
+  document.getElementById('planet-stage').textContent=`Planet ${idx+1} / 10`;
+  document.getElementById('planet-emoji').textContent=p.emoji;
+  document.getElementById('hpbar-fill').style.width=pct+'%';
+  document.getElementById('hpbar-hp').textContent=`${fmtHP(curHP)} / ${fmtHP(maxHP)} HP`;
+  document.getElementById('hpbar-pct').textContent=pct.toFixed(1)+'%';
+  applyPlanetTheme(p);
+  renderPips();
+}
+
+function fmtHP(n){
+  n=Math.ceil(n);
+  if(n>=1e6)return(n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
+  return n.toLocaleString();
+}
+
+function planetSVG(p, size){
+  // Build a unique SVG thumbnail for each planet using its gradient + craters/rings
+  const s=size||64;
+  const extra = {
+    'The Moon':  `<circle cx="38" cy="26" r="7" fill="rgba(0,0,0,0.13)"/><circle cx="22" cy="40" r="4" fill="rgba(0,0,0,0.10)"/><circle cx="44" cy="44" r="3" fill="rgba(0,0,0,0.09)"/>`,
+    'Mercury':   `<circle cx="36" cy="24" r="6" fill="rgba(0,0,0,0.14)"/><circle cx="20" cy="38" r="4" fill="rgba(0,0,0,0.11)"/><circle cx="43" cy="42" r="5" fill="rgba(0,0,0,0.10)"/><circle cx="26" cy="46" r="3" fill="rgba(0,0,0,0.09)"/>`,
+    'Venus':     `<ellipse cx="32" cy="30" rx="18" ry="5" fill="rgba(255,255,255,0.08)" transform="rotate(-20,32,32)"/><ellipse cx="32" cy="40" rx="14" ry="4" fill="rgba(255,255,255,0.06)" transform="rotate(-20,32,32)"/>`,
+    'Earth':     `<ellipse cx="26" cy="28" rx="8" ry="6" fill="rgba(34,136,68,0.7)" transform="rotate(-15,32,32)"/><ellipse cx="40" cy="36" rx="6" ry="9" fill="rgba(34,136,68,0.6)" transform="rotate(10,32,32)"/><ellipse cx="22" cy="40" rx="5" ry="4" fill="rgba(34,136,68,0.5)"/>`,
+    'Mars':      `<circle cx="38" cy="26" r="5" fill="rgba(180,60,20,0.4)"/><circle cx="22" cy="38" r="7" fill="rgba(180,60,20,0.35)"/><ellipse cx="36" cy="18" rx="10" ry="4" fill="rgba(255,220,200,0.15)"/>`,
+    'Jupiter':   `<ellipse cx="32" cy="24" rx="20" ry="3.5" fill="rgba(180,100,40,0.5)" transform="rotate(0,32,32)"/><ellipse cx="32" cy="31" rx="20" ry="3" fill="rgba(220,160,80,0.4)"/><ellipse cx="32" cy="38" rx="20" ry="3.5" fill="rgba(180,100,40,0.5)"/><ellipse cx="32" cy="45" rx="20" ry="2.5" fill="rgba(220,160,80,0.35)"/><circle cx="20" cy="35" r="5" fill="rgba(255,180,80,0.35)" opacity="0.7"/>`,
+    'Saturn':    `<ellipse cx="32" cy="32" rx="26" ry="7" fill="none" stroke="rgba(200,180,100,0.45)" stroke-width="3.5"/><ellipse cx="32" cy="32" rx="22" ry="5" fill="none" stroke="rgba(220,200,120,0.3)" stroke-width="2"/><ellipse cx="32" cy="28" rx="18" ry="2.5" fill="rgba(200,180,100,0.2)"/>`,
+    'Uranus':    `<ellipse cx="32" cy="32" rx="22" ry="6" fill="none" stroke="rgba(136,238,255,0.3)" stroke-width="2.5" transform="rotate(90,32,32)"/><ellipse cx="32" cy="22" rx="18" ry="3" fill="rgba(200,240,255,0.12)"/><ellipse cx="32" cy="38" rx="16" ry="2.5" fill="rgba(200,240,255,0.10)"/>`,
+    'Neptune':   `<ellipse cx="32" cy="26" rx="16" ry="3" fill="rgba(100,140,255,0.25)"/><ellipse cx="32" cy="36" rx="18" ry="3.5" fill="rgba(80,120,255,0.2)"/><circle cx="22" cy="30" r="4" fill="rgba(150,180,255,0.2)"/>`,
+    'Planet X':  `<circle cx="32" cy="32" r="20" fill="none" stroke="rgba(200,68,255,0.25)" stroke-width="1.5"/><circle cx="32" cy="32" r="14" fill="none" stroke="rgba(200,68,255,0.18)" stroke-width="1"/><ellipse cx="26" cy="26" rx="5" ry="5" fill="rgba(255,68,255,0.15)"/><ellipse cx="40" cy="38" rx="4" ry="4" fill="rgba(255,68,255,0.12)"/><text x="32" y="36" text-anchor="middle" font-size="14" fill="rgba(255,68,255,0.5)">☠</text>`,
+  };
+  const detail = extra[p.name]||'';
+  return `<svg class="pip-thumb" width="${s}" height="${s}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="pg${p.name.replace(/\s/g,'')}" cx="35%" cy="35%" r="65%">
+        ${p.bg.replace('radial-gradient(circle at 35% 35%,','').replace(')','')
+          .split(',').map((stop,si,arr)=>{
+            const pct=Math.round((si/(arr.length-1))*100);
+            const m=stop.match(/(#[0-9a-f]+|rgba?\([^)]+\))\s*([\d.]+%)?/i);
+            return m?`<stop offset="${m[2]||pct+'%'}" stop-color="${m[1]}"/>`:'';
+          }).join('')}
+      </radialGradient>
+      <clipPath id="cc${p.name.replace(/\s/g,'')}"><circle cx="32" cy="32" r="28"/></clipPath>
+    </defs>
+    <circle cx="32" cy="32" r="28" fill="url(#pg${p.name.replace(/\s/g,'')})"/>
+    <g clip-path="url(#cc${p.name.replace(/\s/g,'')})">${detail}</g>
+    <circle cx="32" cy="32" r="28" fill="none" stroke="${p.color}" stroke-width="1.5" opacity="0.5"/>
+    <ellipse cx="24" cy="22" rx="8" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-30,24,22)"/>
+  </svg>`;
+}
+
+function renderPips(){
+  const container=document.getElementById('planet-pips');
+  container.innerHTML=PLANETS.map((p,i)=>{
+    const done=i<state.planetIndex;
+    const current=i===state.planetIndex;
+    const locked=i>state.planetIndex;
+    const cls=done?'done':current?'current':'locked';
+    const statusLabel=done?'✓ CONQUERED':current?'◉ CURRENT TARGET':'🔒 LOCKED';
+    const statusCls=done?'done':current?'current':'locked';
+    const thumb=planetSVG(p,64);
+    const tooltip=`<div class="pip-tooltip">
+      ${thumb}
+      <div class="pip-tooltip-name">${p.name}</div>
+      <div class="pip-tooltip-hp">❤️ ${fmtHP(p.hp)} HP</div>
+      <div class="pip-tooltip-status ${statusCls}">${statusLabel}</div>
+    </div>`;
+    return`<div class="planet-pip ${cls}" tabindex="0" role="img" aria-label="${p.name}, ${fmtHP(p.hp)} HP">
+      ${done?'✓':p.emoji}
+      ${tooltip}
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════
+   UPGRADES
+════════════════════════════ */
+const UPGRADES=[
+  {id:'u1', name:'Lunar Lens',      icon:'🔭',desc:'Harvests moonbeams automatically.',            baseCost:15,   cps:0.1,cpt:0},
+  {id:'u2', name:'Star Collector',  icon:'⭐',desc:'Nets floating stardust from orbit.',           baseCost:80,   cps:0.5,cpt:0},
+  {id:'u3', name:'Stronger Taps',   icon:'💪',desc:'+1 stardust & damage per tap.',               baseCost:100,  cps:0,  cpt:1},
+  {id:'u4', name:'Satellite Array', icon:'🛰️',desc:'Ring of satellites collecting cosmic dust.',   baseCost:300,  cps:2,  cpt:0},
+  {id:'u5', name:'Moon Gloves',     icon:'🧤',desc:'Reinforced tapping — +3 per tap.',            baseCost:400,  cps:0,  cpt:3},
+  {id:'u6', name:'Space Station',   icon:'🚀',desc:'Full station dedicated to extraction.',        baseCost:1000, cps:8,  cpt:0},
+  {id:'u7', name:'Wormhole Tap',    icon:'🌀',desc:'Each tap warps extra dust — +8 per tap.',     baseCost:1500, cps:0,  cpt:8},
+  {id:'u8', name:'Nebula Farm',     icon:'🌌',desc:'An entire nebula farmed for stardust.',       baseCost:4000, cps:25, cpt:0},
+  {id:'u9', name:'Quantum Fingers', icon:'✨',desc:'+20 stardust per tap via quantum tunneling.', baseCost:6000, cps:0,  cpt:20},
+  {id:'u10',name:'Black Hole Trap', icon:'🕳️',desc:'Captures dust from passing black holes.',     baseCost:15000,cps:80, cpt:0},
+  {id:'u11',name:'Galaxy Merger',   icon:'🌠',desc:'Merging galaxies release stardust clouds.',   baseCost:40000,cps:200,cpt:0},
+  {id:'u12',name:'Big Bang Tap',    icon:'💥',desc:'Each tap echoes the Big Bang — +50 dust.',   baseCost:50000,cps:0,  cpt:50},
+];
+const MILESTONES=[
+  {at:100,   msg:"🌙 First light — you're launched!"},
+  {at:500,   msg:"⭐ 500 stardust! The cosmos notices you."},
+  {at:1000,  msg:"🚀 1,000! Houston, we have liftoff."},
+  {at:5000,  msg:"🛰️ 5,000! You're in orbit!"},
+  {at:10000, msg:"🌌 10,000! You're among the stars."},
+  {at:50000, msg:"🕳️ 50,000! Black holes fear you."},
+  {at:100000,msg:"💥 100,000! BIG BANG energy!"},
+  {at:500000,msg:"🌠 500K! Galactic legend."},
+  {at:1000000,msg:"💀 1 MILLION! You are the cosmos."},
+];
+
+function getCost(u){return Math.floor(u.baseCost*Math.pow(1.15,state.owned[u.id]||0));}
+function renderUpgrades(){
+  const list=document.getElementById('upgrades-list');
+  list.innerHTML=UPGRADES.map(u=>{
+    const owned=state.owned[u.id]||0;const cost=getCost(u);const locked=state.count<cost;
+    const eff=[];if(u.cpt)eff.push(`+${u.cpt}/tap`);if(u.cps)eff.push(`+${u.cps}/sec`);
+    return`<div class="upgrade-card ${locked?'locked':''}" data-id="${u.id}">
+      <div class="upgrade-icon">${u.icon}</div>
+      <div class="upgrade-info">
+        <div class="upgrade-name">${u.name}</div>
+        <div class="upgrade-desc">${u.desc}<br><em style="color:var(--accent2);font-size:10px">${eff.join(' · ')}</em></div>
+        <div class="upgrade-cost">💫 ${fmt(cost)}</div>
+      </div>
+      <div class="upgrade-owned">${owned>0?`×${owned}`:''}</div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.upgrade-card:not(.locked)').forEach(c=>{
+    c.addEventListener('pointerdown',e=>{e.preventDefault();buyUpgrade(c.dataset.id);});
+  });
+}
+function buyUpgrade(id){
+  const u=UPGRADES.find(x=>x.id===id);if(!u)return;
+  const cost=getCost(u);if(state.count<cost)return;
+  state.count-=cost;state.owned[id]=(state.owned[id]||0)+1;
+  recalcRates();updateStats();renderUpgrades();saveState();
+  spawnToast(`${u.icon} ${u.name} purchased!`);
+}
+
+/* ════════════════════════════
+   STATS & RATES
+════════════════════════════ */
+function fmt(n){n=Math.floor(n);if(n>=1e12)return(n/1e12).toFixed(2)+'T';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(2)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toString();}
+function updateStats(){
+  document.getElementById('stat-count').textContent=fmt(state.count);
+  document.getElementById('stat-per-tap').textContent=fmt(state.perTap);
+  document.getElementById('stat-per-sec').textContent=fmt(state.perSec)+'/s';
+}
+function recalcRates(){
+  let pt=1,ps=0;
+  UPGRADES.forEach(u=>{const q=state.owned[u.id]||0;pt+=u.cpt*q;ps+=u.cps*q;});
+  state.perTap=pt;state.perSec=ps;
+}
+
+/* ════════════════════════════
+   LEADERBOARD
+════════════════════════════ */
+function lbKey(n){return'mc_lb_'+n.toLowerCase().trim();}
+function updateLeaderboard(){
+  if(state.username)localStorage.setItem(lbKey(state.username),JSON.stringify({name:state.username,score:state.totalEarned,planets:state.planetIndex}));
+  const entries=[];
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('mc_lb_'))try{entries.push(JSON.parse(localStorage.getItem(k)));}catch{}}
+  entries.sort((a,b)=>b.score-a.score);
+  const list=document.getElementById('leaderboard-list');
+  if(!entries.length){list.innerHTML='<div style="padding:12px;color:var(--text3);font-size:12px;text-align:center">No scores yet — tap the planet!</div>';return;}
+  list.innerHTML=entries.slice(0,10).map((e,i)=>{
+    const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const rs=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    const isYou=state.username&&e.name.toLowerCase()===state.username.toLowerCase();
+    const planets=e.planets>0?` <span style="font-size:9px;color:var(--text3)">(P${Math.min(e.planets,10)})</span>`:'';
+    return`<div class="lb-row"><div class="lb-rank ${rc}">${rs}</div><div class="lb-name ${isYou?'you':''}">${esc(e.name)}${isYou?' (you)':''}${planets}</div><div class="lb-score">${fmt(e.score)}</div></div>`;
+  }).join('');
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ════════════════════════════
+   TOAST
+════════════════════════════ */
+let toastTimer;
+function spawnToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);}
+
+/* ════════════════════════════
+   CLICK FX
+════════════════════════════ */
+function spawnFx(x,y,text){
+  const el=document.createElement('div');el.className='click-fx';el.textContent=text;
+  el.style.cssText=`left:${x+(Math.random()-.5)*30}px;top:${y}px;transform:translateX(-50%)`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),950);
+}
+
+/* ════════════════════════════
+   PLANET DEFEAT
+════════════════════════════ */
+let victoryOpen=false;
+function defeatPlanet(){
+  const p=PLANETS[state.planetIndex];
+  // flash animation
+  const body=document.getElementById('planet-body');
+  body.classList.add('defeat');
+  setTimeout(()=>body.classList.remove('defeat'),650);
+
+  // show victory overlay
+  document.getElementById('victory-emoji').textContent=p.emoji;
+  document.getElementById('victory-title').textContent=`${p.name} Conquered!`;
+  const next=PLANETS[state.planetIndex+1];
+  const isLast=state.planetIndex===PLANETS.length-1;
+  document.getElementById('victory-sub').innerHTML=isLast
+    ?`You defeated <strong>${p.name}</strong> — the final world!<br>🌌 The entire cosmos is yours!`
+    :`You defeated <strong>${p.name}</strong>!<br>Next up: <strong>${next?next.name:'???'}</strong> (${next?fmtHP(next.hp)+' HP':'???'})`;
+  document.getElementById('btn-next-planet').textContent=isLast?'Claim the Cosmos ★':'Next Planet →';
+  document.getElementById('victory-stars').textContent=
+    state.planetIndex<3?'⭐':state.planetIndex<6?'⭐⭐':state.planetIndex<9?'⭐⭐⭐':'🌟🌟🌟';
+
+  victoryOpen=true;
+  document.getElementById('victory-overlay').classList.add('show');
+}
+
+document.getElementById('btn-next-planet').addEventListener('click',()=>{
+  document.getElementById('victory-overlay').classList.remove('show');
+  victoryOpen=false;
+  state.defeatedPlanets.push(state.planetIndex);
+  state.planetIndex=Math.min(state.planetIndex+1,PLANETS.length);
+  if(state.planetIndex<PLANETS.length){
+    state.planetHP=PLANETS[state.planetIndex].hp;
+  }
+  renderPlanetUI();
+  saveState();
+});
+
+/* ════════════════════════════
+   TAP / CLICK
+════════════════════════════ */
+const moonBtn=document.getElementById('moon-btn');
+
+function doTap(cx,cy){
+  if(victoryOpen)return;
+  // stardust
+  state.count+=state.perTap;
+  state.totalEarned+=state.perTap;
+  updateStats();
+  spawnFx(cx,cy,'+'+fmt(state.perTap));
+  checkMilestones();
+
+  // planet damage (only if not all conquered)
+  if(state.planetIndex<PLANETS.length){
+    state.planetHP=Math.max(0,state.planetHP-state.perTap);
+    renderPlanetUI();
+    if(state.planetHP<=0){
+      defeatPlanet();
+    }
+  }
+}
+
+moonBtn.addEventListener('pointerdown',e=>{e.preventDefault();moonBtn.classList.add('clicking');doTap(e.clientX,e.clientY);});
+moonBtn.addEventListener('pointerup',()=>moonBtn.classList.remove('clicking'));
+moonBtn.addEventListener('pointerout',()=>moonBtn.classList.remove('clicking'));
+moonBtn.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();const r=moonBtn.getBoundingClientRect();doTap(r.left+r.width/2,r.top+r.height/2);}});
+
+/* ════════════════════════════
+   AUTO PRODUCTION (damages planet too)
+════════════════════════════ */
+setInterval(()=>{
+  if(state.perSec>0&&!victoryOpen){
+    state.count+=state.perSec;
+    state.totalEarned+=state.perSec;
+    updateStats();
+    checkMilestones();
+    if(state.planetIndex<PLANETS.length){
+      state.planetHP=Math.max(0,state.planetHP-state.perSec);
+      renderPlanetUI();
+      if(state.planetHP<=0) defeatPlanet();
+    }
+  }
+},1000);
+setInterval(saveState,5000);
+setInterval(renderUpgrades,1000);
+
+/* ════════════════════════════
+   MILESTONES
+════════════════════════════ */
+function checkMilestones(){
+  MILESTONES.forEach(m=>{
+    if(!milestonesHit.has(m.at)&&state.totalEarned>=m.at){
+      milestonesHit.add(m.at);
+      localStorage.setItem('mc_milestones',JSON.stringify([...milestonesHit]));
+      spawnToast(m.msg);
+    }
+  });
+}
+
+/* ════════════════════════════
+   USERNAME
+════════════════════════════ */
+const nameInput=document.getElementById('username-input');
+nameInput.value=state.username||'';
+function saveName(){const n=nameInput.value.trim();if(!n)return;state.username=n;saveState();spawnToast(`👤 Name set to "${n}"!`);}
+document.getElementById('save-name-btn').addEventListener('click',saveName);
+nameInput.addEventListener('keydown',e=>{if(e.key==='Enter')saveName();});
+
+/* ════════════════════════════
+   RESET
+════════════════════════════ */
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  if(!confirm('Reset all your progress? This cannot be undone.'))return;
+  if(state.username)localStorage.removeItem(lbKey(state.username));
+  localStorage.removeItem(SAVE_KEY);localStorage.removeItem('mc_milestones');
+  state=defaultState();milestonesHit=new Set();victoryOpen=false;
+  document.getElementById('victory-overlay').classList.remove('show');
+  recalcRates();updateStats();renderUpgrades();renderPlanetUI();updateLeaderboard();
+  spawnToast('🔄 Progress reset. Start fresh!');
+});
+
+/* ════════════════════════════
+   INIT
+════════════════════════════ */
+recalcRates();updateStats();renderUpgrades();renderPlanetUI();updateLeaderboard();
+
+/* ════════════════════════════
+   CPS TEST
+════════════════════════════ */
+const CPS_ANIMALS=[
+  {min:0,  max:2,  emoji:'🐢',role:'Sleepy Clicker',   name:'THE TORTOISE',    desc:'You click with the grace of a tortoise crossing a highway. <strong>Slow and steady</strong> — but at least you showed up!'},
+  {min:2,  max:4,  emoji:'🐨',role:'Chill Clicker',    name:'THE KOALA',       desc:'Relaxed, unhurried, slightly drowsy. You click like a koala who just found a <strong>really comfy eucalyptus branch</strong>.'},
+  {min:4,  max:5,  emoji:'🐕',role:'Casual Clicker',   name:'THE DOG',         desc:'A good boy clicker! Enthusiastic but not obsessive. You click like a dog <strong>wagging its tail</strong> — steady and happy.'},
+  {min:5,  max:6,  emoji:'🐇',role:'Quick Clicker',    name:'THE RABBIT',      desc:"Now we're hopping! You've got <strong>solid click speed</strong> — like a rabbit darting across the yard. Not bad at all."},
+  {min:6,  max:7,  emoji:'🐆',role:'Swift Clicker',    name:'THE CHEETAH CUB', desc:"You're picking up speed! A cheetah in training — <strong>fast reflexes</strong>, great form, just needs a bit more practice."},
+  {min:7,  max:9,  emoji:'🦅',role:'Rapid Clicker',    name:'THE EAGLE',       desc:'Diving from the sky at full speed — your clicks are <strong>sharp, precise, and fast</strong>. The sky is your limit.'},
+  {min:9,  max:11, emoji:'⚡',role:'Lightning Clicker', name:'THE ELECTRIC EEL',desc:"You're generating electricity! <strong>Blazing fast clicks</strong> that would make most players jealous. Truly shocking speed."},
+  {min:11, max:13, emoji:'🐆',role:'Cheetah Mode',     name:'THE CHEETAH',     desc:"Full cheetah activated! You're clicking at <strong>top predator speed</strong>. Reaction time like lightning, fingers like a machine."},
+  {min:13, max:15, emoji:'🤖',role:'Cyborg Clicker',   name:'THE CYBORG',      desc:'Are you even human?! Your click speed is so fast that <strong>scientists want to study your fingers</strong>. Inhuman reflexes.'},
+  {min:15, max:999,emoji:'👽',role:'Alien Clicker',    name:'THE ALIEN',       desc:"You've transcended humanity. No human clicks this fast. <strong>We suspect extraterrestrial origin.</strong> Report to NASA immediately."},
+];
+const CPS_CIRC=2*Math.PI*54;
+let cpsState={phase:'idle',clicks:0,duration:5,timeLeft:5,timerInterval:null,bestCPS:parseFloat(localStorage.getItem('mc_best_cps')||'0')};
+function getCpsAnimal(cps){return CPS_ANIMALS.find(a=>cps>=a.min&&cps<a.max)||CPS_ANIMALS[CPS_ANIMALS.length-1];}
+function updateCpsRing(){
+  const fill=document.getElementById('cps-ring-fill');
+  const pct=cpsState.timeLeft/cpsState.duration;
+  fill.style.strokeDashoffset=CPS_CIRC*(1-pct);
+  fill.style.stroke=pct>0.5?'var(--accent)':pct>0.25?'#ffaa33':'#ff5544';
+}
+function updateCpsLive(){
+  const elapsed=cpsState.duration-cpsState.timeLeft;
+  const cps=elapsed>0?(cpsState.clicks/elapsed).toFixed(1):'0.0';
+  document.getElementById('cps-live-cps').textContent=cps;
+  document.getElementById('cps-live-clicks').textContent=cpsState.clicks;
+  document.getElementById('cps-zone-count').textContent=cpsState.clicks;
+}
+function startCpsTest(){
+  if(cpsState.phase==='running')return;
+  cpsState.phase='running';cpsState.clicks=0;cpsState.timeLeft=cpsState.duration;
+  document.getElementById('cps-zone').classList.add('active');
+  document.getElementById('cps-zone-icon').style.display='none';
+  document.getElementById('cps-zone-count').style.display='block';
+  document.getElementById('cps-zone-label').textContent='KEEP CLICKING!';
+  document.getElementById('cps-zone-sublabel').textContent='Go go go!';
+  document.getElementById('cps-countdown').textContent=cpsState.duration;
+  updateCpsRing();updateCpsLive();
+  cpsState.timerInterval=setInterval(()=>{
+    cpsState.timeLeft=Math.max(0,cpsState.timeLeft-0.1);
+    document.getElementById('cps-countdown').textContent=Math.ceil(cpsState.timeLeft);
+    updateCpsRing();updateCpsLive();
+    if(cpsState.timeLeft<=0)finishCpsTest();
+  },100);
+}
+function finishCpsTest(){
+  clearInterval(cpsState.timerInterval);
+  cpsState.phase='done';
+  const cps=parseFloat((cpsState.clicks/cpsState.duration).toFixed(2));
+  const animal=getCpsAnimal(cps);
+  if(cps>cpsState.bestCPS){cpsState.bestCPS=cps;localStorage.setItem('mc_best_cps',cps);}
+  updateCpsBestDisplay();
+  document.getElementById('cps-zone').classList.remove('active');
+  document.getElementById('cps-zone-icon').style.display='block';
+  document.getElementById('cps-zone-icon').textContent=animal.emoji;
+  document.getElementById('cps-zone-count').style.display='none';
+  document.getElementById('cps-zone-label').textContent='TEST COMPLETE';
+  document.getElementById('cps-zone-sublabel').textContent='Click Reset to try again';
+  document.getElementById('cps-res-animal').textContent=animal.emoji;
+  document.getElementById('cps-res-role').textContent=animal.role;
+  document.getElementById('cps-res-name').textContent=animal.name;
+  document.getElementById('cps-res-cps').textContent=cps.toFixed(1);
+  document.getElementById('cps-res-clicks').textContent=cpsState.clicks+' total clicks in '+cpsState.duration+' seconds';
+  document.getElementById('cps-res-desc').innerHTML=animal.desc;
+  setTimeout(()=>{document.getElementById('cps-rank-fill').style.width=Math.min(100,(cps/15)*100)+'%';},120);
+  document.getElementById('cps-result-overlay').classList.add('show');
+}
+function resetCpsTest(){
+  clearInterval(cpsState.timerInterval);
+  cpsState.phase='idle';cpsState.clicks=0;cpsState.timeLeft=cpsState.duration;
+  document.getElementById('cps-zone').classList.remove('active');
+  document.getElementById('cps-zone-icon').style.display='block';
+  document.getElementById('cps-zone-icon').textContent='🖱️';
+  document.getElementById('cps-zone-count').style.display='none';
+  document.getElementById('cps-zone-label').textContent='CLICK TO START';
+  document.getElementById('cps-zone-sublabel').textContent='Tap or click anywhere in this zone';
+  document.getElementById('cps-countdown').textContent=cpsState.duration;
+  document.getElementById('cps-live-cps').textContent='0.0';
+  document.getElementById('cps-live-clicks').textContent='0';
+  document.getElementById('cps-zone-count').textContent='0';
+  const fill=document.getElementById('cps-ring-fill');
+  fill.style.strokeDashoffset=0;fill.style.stroke='var(--accent)';
+}
+function updateCpsBestDisplay(){
+  const b=cpsState.bestCPS;
+  document.getElementById('cps-best-display').innerHTML=b>0?'Best: <span>'+b.toFixed(2)+' CPS</span> — '+getCpsAnimal(b).emoji+' '+getCpsAnimal(b).role:'Best: — CPS';
+}
+const cpsZone=document.getElementById('cps-zone');
+cpsZone.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  cpsZone.classList.add('pressed');
+  if(cpsState.phase==='idle'){startCpsTest();return;}
+  if(cpsState.phase==='running'){
+    cpsState.clicks++;updateCpsLive();
+    const r=document.createElement('div');
+    const rect=cpsZone.getBoundingClientRect();
+    r.style.cssText='position:absolute;left:'+(e.clientX-rect.left)+'px;top:'+(e.clientY-rect.top)+'px;width:6px;height:6px;border-radius:50%;background:var(--accent3);opacity:.7;transform:translate(-50%,-50%) scale(1);animation:cps-ripple .5s ease-out forwards;pointer-events:none;';
+    cpsZone.appendChild(r);setTimeout(()=>r.remove(),500);
+  }
+});
+cpsZone.addEventListener('pointerup',()=>cpsZone.classList.remove('pressed'));
+cpsZone.addEventListener('pointerout',()=>cpsZone.classList.remove('pressed'));
+cpsZone.addEventListener('keydown',e=>{
+  if(e.key===' '||e.key==='Enter'){
+    e.preventDefault();
+    if(cpsState.phase==='idle')startCpsTest();
+    else if(cpsState.phase==='running'){cpsState.clicks++;updateCpsLive();}
+  }
+});
+document.querySelectorAll('.cps-dur-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(cpsState.phase==='running')return;
+    document.querySelectorAll('.cps-dur-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    cpsState.duration=parseInt(btn.dataset.dur);
+    resetCpsTest();
+  });
+});
+document.getElementById('cps-reset-btn').addEventListener('click',resetCpsTest);
+document.getElementById('cps-try-again-btn').addEventListener('click',()=>{
+  document.getElementById('cps-result-overlay').classList.remove('show');
+  document.getElementById('cps-rank-fill').style.width='0%';
+  resetCpsTest();
+});
+document.getElementById('cps-close-btn').addEventListener('click',()=>{
+  document.getElementById('cps-result-overlay').classList.remove('show');
+  document.getElementById('cps-rank-fill').style.width='0%';
+});
+const cpsStyleEl=document.createElement('style');
+cpsStyleEl.textContent='@keyframes cps-ripple{0%{transform:translate(-50%,-50%) scale(1);opacity:.7;}100%{transform:translate(-50%,-50%) scale(18);opacity:0;}}';
+document.head.appendChild(cpsStyleEl);
+updateCpsBestDisplay();
+
+/* ════════════════════════════
+   EASTER EGG 1 — KONAMI CODE
+   ↑↑↓↓←→←→BA = max stardust + meteor shower + UFO invasion
+════════════════════════════ */
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiPos = 0;
+let konamiActive = false;
+
+document.addEventListener('keydown', e => {
+  if(e.key === KONAMI[konamiPos]) {
+    konamiPos++;
+    if(konamiPos === KONAMI.length) {
+      konamiPos = 0;
+      if(!konamiActive) triggerKonami();
+    }
+  } else {
+    konamiPos = e.key === KONAMI[0] ? 1 : 0;
+  }
+});
+
+function triggerKonami() {
+  konamiActive = true;
+
+  // max stardust
+  const bonus = 999999;
+  state.count += bonus;
+  state.totalEarned += bonus;
+  updateStats();
+  saveState();
+  spawnToast('👾 KONAMI CODE! +999,999 Stardust! The cosmos is yours!');
+
+  // inject keyframe styles
+  const eeStyle = document.createElement('style');
+  eeStyle.id = 'ee-styles';
+  eeStyle.textContent = `
+    @keyframes meteor-fall {
+      0%   { transform: translateY(-60px) translateX(0) rotate(35deg); opacity:1; }
+      100% { transform: translateY(110vh) translateX(180px) rotate(35deg); opacity:0; }
+    }
+    @keyframes ufo-fly {
+      0%   { transform: translateX(-120px) translateY(0); opacity:0; }
+      5%   { opacity:1; }
+      45%  { transform: translateX(55vw) translateY(-40px); }
+      55%  { transform: translateX(55vw) translateY(40px); }
+      95%  { opacity:1; }
+      100% { transform: translateX(110vw) translateY(0); opacity:0; }
+    }
+    @keyframes ufo-beam {
+      0%,100% { opacity:0.3; transform: scaleX(1); }
+      50%      { opacity:0.7; transform: scaleX(1.2); }
+    }
+    @keyframes ufo-blink {
+      0%,100% { opacity:1; } 50% { opacity:0.2; }
+    }
+    @keyframes ee-flash {
+      0%   { background: rgba(123,140,255,0); }
+      15%  { background: rgba(123,140,255,0.18); }
+      100% { background: rgba(123,140,255,0); }
+    }
+    @keyframes ee-title-shake {
+      0%,100%{ transform:translateX(0); }
+      20%{ transform:translateX(-6px) rotate(-1deg); }
+      40%{ transform:translateX(6px) rotate(1deg); }
+      60%{ transform:translateX(-4px); }
+      80%{ transform:translateX(4px); }
+    }
+  `;
+  document.head.appendChild(eeStyle);
+
+  // screen flash
+  const flash = document.createElement('div');
+  flash.style.cssText = 'position:fixed;inset:0;z-index:9998;pointer-events:none;animation:ee-flash 1.2s ease forwards;';
+  document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 1200);
+
+  // shake logo
+  const logo = document.querySelector('.logo');
+  logo.style.animation = 'ee-title-shake 0.5s ease';
+  setTimeout(() => logo.style.animation = '', 500);
+
+  // METEOR SHOWER — 30 meteors staggered
+  for(let i = 0; i < 30; i++) {
+    setTimeout(() => spawnMeteor(), i * 120 + Math.random() * 80);
+  }
+
+  // UFO INVASION — 6 UFOs in waves
+  const ufoDelays = [400, 900, 1600, 2400, 3200, 4100];
+  ufoDelays.forEach((delay, i) => setTimeout(() => spawnUFO(i), delay));
+
+  // cool down after 6s
+  setTimeout(() => { konamiActive = false; }, 6000);
+}
+
+function spawnMeteor() {
+  const m = document.createElement('div');
+  const x = Math.random() * 100;
+  const size = 10 + Math.random() * 18;
+  const dur = 0.7 + Math.random() * 0.8;
+  m.style.cssText = `
+    position:fixed;
+    left:${x}vw;top:0;
+    width:${size}px;height:${size * 3.5}px;
+    background:linear-gradient(35deg,#fff 0%,#ffd166 30%,#ff8800 60%,transparent 100%);
+    border-radius:50% 50% 10% 10%;
+    z-index:9990;pointer-events:none;
+    box-shadow:0 0 ${size}px rgba(255,180,50,0.8),0 0 ${size*2}px rgba(255,100,0,0.4);
+    animation:meteor-fall ${dur}s ease-in forwards;
+  `;
+  document.body.appendChild(m);
+  setTimeout(() => m.remove(), dur * 1000 + 100);
+}
+
+function spawnUFO(index) {
+  const ufo = document.createElement('div');
+  const yPos = 8 + (index % 3) * 14;
+  const dur = 3.5 + Math.random() * 1.5;
+  // UFO built from divs
+  ufo.innerHTML = `
+    <div style="position:relative;width:90px;height:50px;">
+      <!-- beam -->
+      <div style="position:absolute;top:34px;left:50%;transform:translateX(-50%);
+        width:0;height:0;border-left:28px solid transparent;border-right:28px solid transparent;
+        border-top:60px solid rgba(150,255,180,0.18);
+        animation:ufo-beam 0.8s ease-in-out infinite;filter:blur(3px);"></div>
+      <!-- dome -->
+      <div style="position:absolute;top:2px;left:50%;transform:translateX(-50%);
+        width:36px;height:22px;background:radial-gradient(circle at 40% 35%,#e0f8ff,#88ddff,#4499cc);
+        border-radius:50% 50% 40% 40%;border:1.5px solid rgba(136,220,255,0.7);
+        box-shadow:0 0 12px rgba(100,200,255,0.6);"></div>
+      <!-- body -->
+      <div style="position:absolute;top:18px;left:50%;transform:translateX(-50%);
+        width:80px;height:22px;background:linear-gradient(180deg,#c0c8e8,#8090c0,#5060a0);
+        border-radius:50%;border:1.5px solid rgba(180,200,255,0.5);
+        box-shadow:0 0 16px rgba(120,140,255,0.5),inset 0 -4px 8px rgba(0,0,0,0.3);"></div>
+      <!-- lights -->
+      <div style="position:absolute;top:24px;left:18px;width:7px;height:7px;border-radius:50%;
+        background:#ff4466;box-shadow:0 0 8px #ff4466;animation:ufo-blink 0.4s ease infinite;"></div>
+      <div style="position:absolute;top:24px;left:38px;width:7px;height:7px;border-radius:50%;
+        background:#44ff88;box-shadow:0 0 8px #44ff88;animation:ufo-blink 0.4s 0.13s ease infinite;"></div>
+      <div style="position:absolute;top:24px;left:58px;width:7px;height:7px;border-radius:50%;
+        background:#ffdd44;box-shadow:0 0 8px #ffdd44;animation:ufo-blink 0.4s 0.26s ease infinite;"></div>
+    </div>
+  `;
+  ufo.style.cssText = `
+    position:fixed;top:${yPos}vh;left:0;
+    z-index:9995;pointer-events:none;
+    animation:ufo-fly ${dur}s ease-in-out forwards;
+    filter:drop-shadow(0 0 10px rgba(100,200,255,0.6));
+  `;
+  document.body.appendChild(ufo);
+  setTimeout(() => ufo.remove(), dur * 1000 + 200);
+}
+
+/* ════════════════════════════
+   EASTER EGG 2 — IDLE TAUNT
+   30s no clicks = alien appears and taunts you
+════════════════════════════ */
+let idleTimer = null;
+let idleTauntEl = null;
+const IDLE_TAUNTS = [
+  "👽 Hello? Is anyone there? The planets are WAITING...",
+  "😴 Zzz... even the moon is falling asleep waiting for you.",
+  "🐢 At this rate, the tortoise is lapping you.",
+  "🌌 The cosmos called. It wants its stardust back.",
+  "🛸 The UFOs are laughing at you. Get clicking!",
+  "💀 Planet X says you're not a threat. Prove it wrong.",
+  "⏳ Time flies... unlike your click speed.",
+  "🌙 The moon is lonely. Give it a tap, will ya?",
+];
+let idleTauntIndex = 0;
+
+function resetIdleTimer() {
+  clearTimeout(idleTimer);
+  // remove any existing taunt
+  if(idleTauntEl) { idleTauntEl.remove(); idleTauntEl = null; }
+  idleTimer = setTimeout(showIdleTaunt, 30000);
+}
+
+function showIdleTaunt() {
+  if(idleTauntEl) idleTauntEl.remove();
+  const msg = IDLE_TAUNTS[idleTauntIndex % IDLE_TAUNTS.length];
+  idleTauntIndex++;
+
+  idleTauntEl = document.createElement('div');
+  idleTauntEl.style.cssText = `
+    position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+    background:var(--panel2);border:1px solid var(--accent);
+    border-radius:16px;padding:14px 22px;
+    font-family:'Orbitron',monospace;font-size:12px;
+    color:var(--text);text-align:center;
+    box-shadow:0 0 30px var(--glow);
+    z-index:400;max-width:88vw;
+    animation:idle-taunt-in 0.4s ease forwards;
+    cursor:pointer;
+  `;
+  idleTauntEl.textContent = msg;
+
+  const iStyle = document.createElement('style');
+  iStyle.textContent = `@keyframes idle-taunt-in{from{opacity:0;transform:translateX(-50%) translateY(16px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}`;
+  document.head.appendChild(iStyle);
+
+  document.body.appendChild(idleTauntEl);
+  // click to dismiss
+  idleTauntEl.addEventListener('pointerdown', () => {
+    if(idleTauntEl){ idleTauntEl.remove(); idleTauntEl = null; }
+    resetIdleTimer();
+  });
+  // auto-dismiss after 6s, then taunt again after another 30s
+  setTimeout(() => {
+    if(idleTauntEl){ idleTauntEl.remove(); idleTauntEl = null; }
+    idleTimer = setTimeout(showIdleTaunt, 30000);
+  }, 6000);
+}
+
+// reset idle timer on any interaction
+['pointerdown','keydown','mousemove','touchstart'].forEach(evt =>
+  document.addEventListener(evt, resetIdleTimer, { passive: true })
+);
+resetIdleTimer();
+</script>
+</body>
+</html>
